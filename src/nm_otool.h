@@ -1,31 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   test.c                                             :+:      :+:    :+:   */
+/*   nm-otool.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/05/12 19:10:00 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/05/15 19:59:40 by tvermeil         ###   ########.fr       */
+/*   Created: 2017/05/12 16:56:15 by tvermeil          #+#    #+#             */
+/*   Updated: 2017/05/15 19:54:14 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "nm_otool.h"
+#ifndef NM_OTOOL_H
+# define NM_OTOOL_H
 
-int		g_wrong_endian = 0;
+# include "libft.h"
 
-int		main(int ac, char *av[])
-{
-	char	*ptr;
+# define ERROR(str)	ft_putendl_fd(str, 2)
 
-	if (ac < 2)
-	{
-		ERROR("An argument is needed");
-		return (EXIT_FAILURE);
-	}
-	if ((ptr = map_filename(av[1])) == NULL)
-		return (EXIT_FAILURE);
-	if ((ptr = get_fat_entry(ptr)) == NULL)
-		return (EXIT_FAILURE);
-	return (EXIT_SUCCESS);
-}
+/*
+** map.c
+*/
+void	*map_filename(const char *pathname);
+
+/*
+** fat.c
+*/
+void	*get_fat_entry(void *map_addr);
+
+#endif

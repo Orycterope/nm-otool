@@ -6,7 +6,7 @@
 #    By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/12/18 19:13:31 by tvermeil          #+#    #+#              #
-#    Updated: 2017/05/12 19:28:10 by tvermeil         ###   ########.fr        #
+#    Updated: 2017/05/15 20:00:01 by tvermeil         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,7 +39,7 @@ SRC_NAME =		test.c \
 
 HEADER_NAME =	\
 
-PRIVATE_HEADER_NAME =	nm-otool.h \
+PRIVATE_HEADER_NAME =	nm_otool.h \
 
 OBJ_NAME = $(SRC_NAME:.c=.o)
 

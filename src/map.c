@@ -6,11 +6,11 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 16:55:15 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/05/12 19:40:10 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/05/15 19:56:38 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "nm-otool.h"
+#include "nm_otool.h"
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <fcntl.h>
@@ -26,6 +26,7 @@
 ** returns the address to the mapping
 ** on error this function displays a small text and call exit.
 */
+
 void	*map_filename(const char *pathname)
 {
 	int			fd;
@@ -34,18 +35,18 @@ void	*map_filename(const char *pathname)
 
 	if ((fd = open(pathname, O_RDONLY)) < 0)
 	{
-		error("The file does not exist or cannot be opened");
+		ERROR("The file does not exist or cannot be opened");
 		return (NULL);
 	}
 	if (fstat(fd, &my_stat) != 0)
 	{
-		error("The file cannot be stat'd");
+		ERROR("The file cannot be stat'd");
 		return (NULL);
 	}
 	ptr = mmap(NULL, my_stat.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	if (ptr == MAP_FAILED)
 	{
-		error("The file cannot be mmap'd");
+		ERROR("The file cannot be mmap'd");
 		return (NULL);
 	}
 	close(fd);

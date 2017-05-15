@@ -1,30 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   nm-otool.h                                         :+:      :+:    :+:   */
+/*   endian.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/05/12 16:56:15 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/05/12 19:38:35 by tvermeil         ###   ########.fr       */
+/*   Created: 2017/05/15 18:01:36 by tvermeil          #+#    #+#             */
+/*   Updated: 2017/05/15 18:10:34 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef NM_OTOOL_H
-# define NM_OTOOL_H
+#ifndef ENDIAN_H
+# define ENDIAN_H
 
-# include "libft.h"
+# define R(n)	(g_wrong_endian ? ft_reverse_bytes_to_long(&n, sizeof(n)) : n)
 
-# define error(str)		ft_putendl_fd(str, 2)
-
-/*
-** map.c
-*/
-void	*map_filename(const char *pathname);
-
-/*
-** fat.c
-*/
-void	*get_fat_entry(void *map_addr);
+extern int	g_wrong_endian;
 
 #endif
