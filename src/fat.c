@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 17:39:04 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/05/15 19:57:13 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/05/18 20:13:59 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,21 +24,26 @@
 ** or if no entry is valid exit.
 */
 
-static void	*parse_fat_32(void *map_addr, void *ptr, uint32_t n)
+static t_file_map	parse_fat_32(t_file_map mapping, void *ptr, uint32_t n)
 {
 	struct fat_arch	*a;
 
 	a = (struct fat_arch *)ptr;
-	while (n--)
+	while (n--) // check dépasse pas file_size
 	{
 		if (a->offset)
-			return (map_addr + R(a->offset));
+		{
+			mapping.size = R(a->size);
+			mapping.addr += R(a->offset);
+			return (mapping);
+		}
 	}
 	ERROR("The fat file contains no valid architecture");
-	return (NULL);
+	ft_bzero(&mapping, sizeof(t_file_map));
+	return (mapping);
 }
 
-static void	*parse_fat_64(void *map_addr, void *ptr, uint32_t n)
+static t_file_map	parse_fat_64(t_file_map mapping, void *ptr, uint32_t n)
 {
 	struct fat_arch_64	*a;
 
@@ -46,10 +51,15 @@ static void	*parse_fat_64(void *map_addr, void *ptr, uint32_t n)
 	while (n--)
 	{
 		if (a->offset)
-			return (map_addr + R(a->offset));
+		{
+			mapping.size = R(a->size);
+			mapping.addr += R(a->offset);
+			return (mapping);
+		}
 	}
 	ERROR("The fat file contains no valid architecture");
-	return (NULL);
+	ft_bzero(&mapping, sizeof(t_file_map));
+	return (mapping);
 }
 
 /*
@@ -58,20 +68,20 @@ static void	*parse_fat_64(void *map_addr, void *ptr, uint32_t n)
 ** function can be called regardless of the file type.
 */
 
-void		*get_fat_entry(void *map_addr)
+t_file_map			get_fat_entry(t_file_map mapping)
 {
 	struct fat_header	*header;
 
-	header = (struct fat_header*)map_addr;
+	header = (struct fat_header*)mapping.addr;
 	g_wrong_endian = 0;
 	if (header->magic == FAT_CIGAM || header->magic == FAT_CIGAM_64)
 		g_wrong_endian = 1;
 	if (header->magic == FAT_MAGIC || header->magic == FAT_CIGAM)
-		return (parse_fat_32(map_addr,
-					map_addr + sizeof(*header), R(header->nfat_arch)));
+		return (parse_fat_32(mapping,
+					mapping.addr + sizeof(*header), R(header->nfat_arch)));
 	else if (header->magic == FAT_MAGIC_64 || header->magic == FAT_CIGAM_64)
-		return (parse_fat_64(map_addr,
-					map_addr + sizeof(*header), R(header->nfat_arch)));
+		return (parse_fat_64(mapping,
+					mapping.addr + sizeof(*header), R(header->nfat_arch)));
 	else
-		return (map_addr);
+		return (mapping);
 }

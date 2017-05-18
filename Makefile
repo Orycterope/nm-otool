@@ -6,7 +6,7 @@
 #    By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/12/18 19:13:31 by tvermeil          #+#    #+#              #
-#    Updated: 2017/05/15 20:00:01 by tvermeil         ###   ########.fr        #
+#    Updated: 2017/05/18 15:18:15 by tvermeil         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,6 +36,7 @@ LDLIBS = -lft
 SRC_NAME =		test.c \
 				fat.c \
 				map.c \
+				ar.c \
 
 HEADER_NAME =	\
 

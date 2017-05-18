@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 16:55:15 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/05/15 19:56:38 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/05/18 16:27:24 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,32 +23,35 @@
 /*
 ** This functions tries to open -pathname-, fstat it to get its size,
 ** map it and finally close the fd.
-** returns the address to the mapping
-** on error this function displays a small text and call exit.
+** returns the address to the mapping and its size.
+** on error this function displays a small text and sets ret.addr to NULL
 */
 
-void	*map_filename(const char *pathname)
+t_file_map	map_filename(const char *pathname)
 {
 	int			fd;
-	void		*ptr;
 	struct stat	my_stat;
+	t_file_map	mapping;
 
+	ft_bzero(&mapping, sizeof(t_file_map));
 	if ((fd = open(pathname, O_RDONLY)) < 0)
 	{
 		ERROR("The file does not exist or cannot be opened");
-		return (NULL);
+		return (mapping);
 	}
 	if (fstat(fd, &my_stat) != 0)
 	{
 		ERROR("The file cannot be stat'd");
-		return (NULL);
+		return (mapping);
 	}
-	ptr = mmap(NULL, my_stat.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-	if (ptr == MAP_FAILED)
+	mapping.addr = mmap(NULL, my_stat.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+	if (mapping.addr == MAP_FAILED)
 	{
 		ERROR("The file cannot be mmap'd");
-		return (NULL);
+		mapping.addr = NULL;
+		return (mapping);
 	}
 	close(fd);
-	return (ptr);
+	mapping.size = my_stat.st_size;
+	return (mapping);
 }
