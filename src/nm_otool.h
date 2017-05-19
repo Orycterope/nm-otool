@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 16:56:15 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/05/18 19:19:17 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/05/19 18:56:57 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,5 +54,11 @@ t_file_map		get_fat_entry(t_file_map mapping);
 int				check_is_ar_file(void *addr);
 t_list			*create_ar_lst(t_file_map archive);
 void			free_ar_file(void *content, size_t size);
+
+/*
+** macho.c
+*/
+void			get_load_commands(t_file_map map, uint32_t cmd,
+		void	(callback)(void *));
 
 #endif

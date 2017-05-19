@@ -6,13 +6,20 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 19:10:00 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/05/18 17:47:56 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/05/19 18:59:47 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "nm_otool.h"
+#include <mach-o/loader.h>
 
 int		g_wrong_endian = 0;
+
+static void	callback(void *addr)
+{
+	(void)addr;
+	ft_putendl("I'm a callback function ! :D");
+}
 
 int		main(int ac, char *av[])
 {
@@ -34,5 +41,6 @@ int		main(int ac, char *av[])
 		ar_file_lst = create_ar_lst(mapping);
 		ft_lstdel(&ar_file_lst, free_ar_file);
 	}
+	get_load_commands(mapping, LC_SYMTAB, callback);
 	return (EXIT_SUCCESS);
 }
