@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/19 17:24:10 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/05/19 19:20:28 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/05/24 18:57:50 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ static uint32_t	parse_header(t_file_map *map)
 */
 
 void			get_load_commands(t_file_map map, uint32_t cmd,
-		void	(callback)(void *))
+	void (callback)(void *, void *), void *data)
 {
 	uint32_t			ncmds;
 	struct load_command *lc;
@@ -70,9 +70,91 @@ void			get_load_commands(t_file_map map, uint32_t cmd,
 			break ;
 		}
 		if (lc->cmd == cmd)
-			callback(map.addr);
+			callback(map.addr, data);
 		map.size -= lc->cmdsize;
 		map.addr += lc->cmdsize;
 		ncmds--;
 	}
+}
+
+/*
+** Gets the n-th section of the mach-o file
+** Returns NULL if there is no such section.
+*/
+struct section	*get_section_by_number(t_file_map map, int n)
+{
+	uint32_t				ncmds;
+	struct segment_command	*lc;
+	int						s;
+
+	ncmds = parse_header(&map);
+	while (ncmds-- && n > 0)
+	{
+		lc = (struct segment_command *)map.addr;
+		if ((R(lc->cmd) == LC_SEGMENT && (s = R(lc->nsects)))
+			|| (R(lc->cmd) == LC_SEGMENT_64
+			&& (s = R(((struct segment_command_64*)lc)->nsects))))
+		{
+			if (s >= n && R(lc->cmd) == LC_SEGMENT)
+				return ((void *)(lc + 1) + (n - 1) * sizeof(struct section));
+			else if (s >= n)
+				return ((void *)(lc) + sizeof(struct segment_command_64)
+						+ (n - 1) * sizeof(struct section_64));
+			n -= s;
+		}
+		map.size -= lc->cmdsize;
+		map.addr += lc->cmdsize;
+	}
+	return (NULL);
+}
+
+t_file_map		get_section_in_segment(struct segment_command *lc,
+	const char *sect_name, t_file_map file)
+{
+	struct section				*s;
+	int							n;
+	int							is_32;
+
+	is_32 = R(lc->cmd) == LC_SEGMENT ? 1 : 0;
+	n = is_32 ? R(lc->nsects) : R(((struct segment_command_64*)lc)->nsects);
+	s = is_32 ? lc + 1 : ((void *)lc) + sizeof(struct segment_command_64);
+	while (n--)
+	{
+		if (ft_strncmp(sect_name, s->sectname, 16) == 0)
+		{
+			file.addr += is_32 ? s->offset : ((struct section_64 *)s)->offset;
+			file.size = is_32 ? s->size : ((struct section_64 *)s)->size;
+			return (file);
+		}
+	}
+	ft_bzero(&file, sizeof(file));
+	return (file);
+}
+
+/*
+** Gets the section -sect_name- in -seg_name-
+** If nothing is found returns a t_file_map pointing to NULL
+*/
+t_file_map		get_section_by_name(t_file_map map, const char *seg_name,
+	const char *sect_name)
+{
+	uint32_t				ncmds;
+	struct segment_command	*lc;
+	t_file_map				orig_map;
+
+	orig_map = map;
+	ncmds = parse_header(&map);
+	while (ncmds--)
+	{
+		lc = (struct segment_command *)map.addr;
+		if (R(lc->cmd) == LC_SEGMENT || R(lc->cmd) == LC_SEGMENT_64)
+		{
+			if (ft_strncmp(seg_name, lc->segname, 16) == 0)
+				return (get_section_in_segment(lc, sect_name, orig_map));
+		}
+		map.size -= lc->cmdsize;
+		map.addr += lc->cmdsize;
+	}
+	ft_bzero(&map, sizeof(map));
+	return (map);
 }

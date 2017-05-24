@@ -6,7 +6,7 @@
 #    By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/12/18 19:13:31 by tvermeil          #+#    #+#              #
-#    Updated: 2017/05/19 18:59:59 by tvermeil         ###   ########.fr        #
+#    Updated: 2017/05/22 18:26:58 by tvermeil         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,6 +38,7 @@ SRC_NAME =		test.c \
 				map.c \
 				ar.c \
 				macho.c \
+				nlist.c \
 
 HEADER_NAME =	\
 
