@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 19:10:00 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/05/24 18:27:27 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/05/26 17:35:16 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,17 +23,17 @@ static void	symtab_command_callback(void *command_addr, void *data)
 
 	command = (struct symtab_command *)command_addr;
 	mapping = (t_file_map *)data;
-	if (command->stroff + command->strsize > mapping->size)
+	if ((size_t)R(command->stroff) + R(command->strsize) > mapping->size)
 	{
 		ft_putendl_fd("This file seems to have been truncated", 2);
 		return ;
 	}
 	if (R(((struct mach_header *)mapping->addr)->magic) == MH_MAGIC_64)
-		parse_symtab_64(mapping->addr + command->symoff, command->nsyms,
-				mapping->addr + command->stroff, *mapping);
+		parse_symtab_64(mapping->addr + R(command->symoff), R(command->nsyms),
+				mapping->addr + R(command->stroff), *mapping);
 	else
-		parse_symtab_32(mapping->addr + command->symoff, command->nsyms,
-				mapping->addr + command->stroff, *mapping);
+		parse_symtab_32(mapping->addr + R(command->symoff), R(command->nsyms),
+				mapping->addr + R(command->stroff), *mapping);
 }
 
 int		main(int ac, char *av[])

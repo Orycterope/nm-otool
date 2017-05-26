@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/19 17:24:10 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/05/24 18:57:50 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/05/26 16:53:23 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,15 +64,15 @@ void			get_load_commands(t_file_map map, uint32_t cmd,
 	while (ncmds)
 	{
 		lc = (struct load_command *)map.addr;
-		if (map.size < sizeof(*lc) || map.size < lc->cmdsize)
+		if (map.size < sizeof(*lc) || map.size < (size_t)R(lc->cmdsize))
 		{
 			ft_putendl_fd("This file seems to have been truncated", 2);
 			break ;
 		}
-		if (lc->cmd == cmd)
+		if (R(lc->cmd) == cmd)
 			callback(map.addr, data);
-		map.size -= lc->cmdsize;
-		map.addr += lc->cmdsize;
+		map.size -= R(lc->cmdsize);
+		map.addr += R(lc->cmdsize);
 		ncmds--;
 	}
 }
