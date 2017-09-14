@@ -6,7 +6,7 @@
 #    By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/12/18 19:13:31 by tvermeil          #+#    #+#              #
-#    Updated: 2017/09/14 10:39:35 by tvermeil         ###   ########.fr        #
+#    Updated: 2017/09/14 14:51:53 by tvermeil         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,12 +28,12 @@ DST_PATH = $(ROOT)
 LFT_PATH = $(ROOT)
 
 CC = gcc -g
-CFLAGS = -Wall -Wextra -Werror -fPIC
+CFLAGS = -Wall -Wextra -Werror
 CPPFLAGS = $(addprefix -I ,$(INC_PATH))
 LDFLAGS = -L$(LFT_PATH)
 LDLIBS = -lft 
 
-SRC_NAME =		test.c \
+SRC_NAME =		nm.c \
 				fat.c \
 				map.c \
 				ar.c \

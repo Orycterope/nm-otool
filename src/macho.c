@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/19 17:24:10 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/05/26 16:53:23 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/14 14:33:50 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,12 +35,12 @@ static uint32_t	parse_header(t_file_map *map)
 		header_size = sizeof(struct mach_header_64);
 	else
 	{
-		ft_putendl_fd("This is not a mach-o file", 2);
+		ft_putendl("This is not a mach-o file");
 		return (0);
 	}
 	if (map->size < R(header->sizeofcmds) + header_size)
 	{
-		ft_putendl_fd("This file seems to have been truncated", 2);
+		ft_putendl("This file seems to have been truncated");
 		return (0);
 	}
 	map->size -= header_size;
@@ -66,7 +66,7 @@ void			get_load_commands(t_file_map map, uint32_t cmd,
 		lc = (struct load_command *)map.addr;
 		if (map.size < sizeof(*lc) || map.size < (size_t)R(lc->cmdsize))
 		{
-			ft_putendl_fd("This file seems to have been truncated", 2);
+			ft_putendl("This file seems to have been truncated");
 			break ;
 		}
 		if (R(lc->cmd) == cmd)

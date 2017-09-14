@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 16:56:15 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/14 10:34:45 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/14 13:16:47 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ typedef struct	s_file_map
 typedef struct	s_ar_file
 {
 	char		*filename;
+	char		*archive_name;
 	void		*addr;
 	size_t		size;
 }				t_ar_file;
@@ -63,7 +64,7 @@ t_file_map		get_fat_entry(t_file_map mapping);
 ** ar.c
 */
 int				check_is_ar_file(void *addr);
-t_list			*create_ar_lst(t_file_map archive);
+t_list			*create_ar_lst(t_file_map archive, char *archive_name);
 void			free_ar_file(void *content, size_t size);
 
 /*

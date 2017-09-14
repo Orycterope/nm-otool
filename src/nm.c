@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 19:10:00 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/05/26 17:35:16 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/14 15:42:16 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,26 +36,67 @@ static void	symtab_command_callback(void *command_addr, void *data)
 				mapping->addr + R(command->stroff), *mapping);
 }
 
-int		main(int ac, char *av[])
+static void ar_iter_callback(t_list *elem)
 {
-	t_list		*ar_file_lst;
-	t_file_map	mapping;
+	t_ar_file		*file;
+	t_file_map		mapping;
+	unsigned int	magic;
 
-	if (ac < 2)
-	{
-		ERROR("An argument is needed");
-		return (EXIT_FAILURE);
-	}
-	if ((mapping = map_filename(av[1])).addr == NULL)
+	file = (t_ar_file *)elem->content;
+	mapping.addr = file->addr;
+	mapping.size = file->size;
+	magic = *(unsigned int *)(mapping.addr);
+	if (!(magic == MH_MAGIC || magic == MH_CIGAM
+		|| magic == MH_MAGIC_64 || magic == MH_CIGAM_64))
+		return ;
+	ft_printf("%s(%s):\n", file->archive_name, file->filename);
+	get_load_commands(mapping, LC_SYMTAB, symtab_command_callback, &mapping);
+	if (elem->next != NULL)
+		ft_putchar('\n');
+}
+
+static int	nm_file(char *filename, int multiple_args)
+{
+	t_file_map	mapping;
+	t_list		*ar_file_lst;
+
+	if ((mapping = map_filename(filename)).addr == NULL)
 		return (EXIT_FAILURE);
 	if ((mapping = get_fat_entry(mapping)).addr == NULL)
 		return (EXIT_FAILURE);
 	if (check_is_ar_file(mapping.addr))
 	{
-		ft_putendl("This is an ar file");
-		ar_file_lst = create_ar_lst(mapping);
+		ar_file_lst = create_ar_lst(mapping, filename);
+		ft_lstiter(ar_file_lst, ar_iter_callback);
 		ft_lstdel(&ar_file_lst, free_ar_file);
 	}
-	get_load_commands(mapping, LC_SYMTAB, symtab_command_callback, &mapping);
+	else
+	{
+		if (multiple_args)
+			ft_printf("%s:\n", filename);
+		get_load_commands(mapping, LC_SYMTAB, symtab_command_callback,
+				&mapping);
+	}
+	//TODO unmap
+	return (EXIT_SUCCESS);
+}
+
+int			main(int ac, char *av[])
+{
+	int	multiple_args;
+
+	multiple_args = ac > 2;
+	if (ac < 2)
+	{
+		ERROR("An argument is needed");
+		return (EXIT_FAILURE);
+	}
+	if (multiple_args)
+		ft_putchar('\n');
+	while (ac-- - 1) {
+		nm_file((av++ + 1)[0], multiple_args);
+		if (ac != 1)
+			ft_putchar('\n');
+	}
 	return (EXIT_SUCCESS);
 }

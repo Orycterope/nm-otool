@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/14 10:31:56 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/14 10:46:21 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/14 15:49:16 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,18 +69,47 @@ void		print_sym(t_list *elem)
 
 	symbol_struct = elem->content;
 	sym = symbol_struct->data;
-	if ((R(sym->n_type) & 0xe0) == 0)
+	/*if ((R(sym->n_type) & 0xe0) == 0)
 	{
 		ft_printf("%08lx %c %s\n", R(sym->n_value),
 			'*',
 			symbol_struct->name);
+	}*/
+	if ((R(sym->n_type) & 0xe0) == 0)
+	{
+		if (R(sym->n_value) == 0) // && UNDEFINED
+		{
+			ft_printf("%8c %c %s\n",
+			' ',
+			get_letter(R(sym->n_type), R(sym->n_sect), symbol_struct->file),
+			symbol_struct->name);
+		}
+		/*else if (R(sym->n_sect) != NO_SECT)
+		{
+			sect = get_section_by_number(file, R(sym->n_sect));
+			ft_printf("%016lx %c %c %s\t%s %s\n",
+				R(sym->n_value),
+				'+', get_letter(R(sym->n_type), file),
+				str_tab + R(sym->n_un.n_strx),
+				sect->segname, sect->sectname);
+		}*/
+		else
+		{
+			ft_printf(
+				//"%016lx %0#4lx %c %s\n",
+				"%08x %c %s\n",
+				R(sym->n_value),
+				//sym->n_type, //
+				get_letter(R(sym->n_type), R(sym->n_sect), symbol_struct->file),
+				symbol_struct->name);
+		}
 	}
 }
 
 void		print_sym_64(t_list *elem)
 {
 	t_symbol		*symbol_struct;
-	struct nlist	*sym;
+	struct nlist_64	*sym;
 
 	symbol_struct = elem->content;
 	sym = symbol_struct->data;
