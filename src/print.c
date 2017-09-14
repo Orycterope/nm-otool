@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/14 10:31:56 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/14 15:49:16 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/14 18:28:53 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,16 +23,18 @@
 ** Gets the nm letter to be displayed
 */
 
-static char	get_letter(uint8_t n_type, uint8_t n_sect, t_file_map file)
+static char	get_letter(uint8_t n_type, uint8_t n_sect, int value_is_null,
+		t_file_map file)
 {
 	char			letter;
 	struct section	*sect;
 	int				local;
 
-	(void)file; //
 	local = ((n_type & N_EXT) == 0);
 	n_type &= N_TYPE;
-	if (n_type == N_UNDF)
+	if (n_type == N_UNDF && n_sect == NO_SECT && !value_is_null)
+		letter = 'C'; // see nlist.h:161
+	else if (n_type == N_UNDF)
 		letter = 'U';
 	else if (n_type == N_ABS)
 		letter = 'A';
@@ -49,10 +51,7 @@ static char	get_letter(uint8_t n_type, uint8_t n_sect, t_file_map file)
 		else if (ft_strncmp(sect->segname, SEG_DATA, 16) == 0
 			&& ft_strncmp(sect->sectname, SECT_BSS, 16) == 0)
 			letter = 'B';
-		else if (ft_strncmp(sect->segname, SEG_DATA, 16) == 0
-			&& ft_strncmp(sect->sectname, SECT_COMMON, 16) == 0)
-			letter = 'C'; // see nlist.h:161
-	}
+		}
 	else if (n_type == N_INDR)
 		letter = 'I';
 	else if (n_type == N_PBUD)
@@ -77,11 +76,12 @@ void		print_sym(t_list *elem)
 	}*/
 	if ((R(sym->n_type) & 0xe0) == 0)
 	{
-		if (R(sym->n_value) == 0) // && UNDEFINED
+		if (R(sym->n_value) == 0 && (R(sym->n_type) & N_TYPE) == N_UNDF)
 		{
 			ft_printf("%8c %c %s\n",
 			' ',
-			get_letter(R(sym->n_type), R(sym->n_sect), symbol_struct->file),
+			get_letter(R(sym->n_type), R(sym->n_sect), R(sym->n_value) == 0,
+				symbol_struct->file),
 			symbol_struct->name);
 		}
 		/*else if (R(sym->n_sect) != NO_SECT)
@@ -100,7 +100,8 @@ void		print_sym(t_list *elem)
 				"%08x %c %s\n",
 				R(sym->n_value),
 				//sym->n_type, //
-				get_letter(R(sym->n_type), R(sym->n_sect), symbol_struct->file),
+				get_letter(R(sym->n_type), R(sym->n_sect), R(sym->n_value) == 0,
+					symbol_struct->file),
 				symbol_struct->name);
 		}
 	}
@@ -115,11 +116,12 @@ void		print_sym_64(t_list *elem)
 	sym = symbol_struct->data;
 	if ((R(sym->n_type) & 0xe0) == 0)
 	{
-		if (R(sym->n_value) == 0) // && UNDEFINED
+		if (R(sym->n_value) == 0 && (R(sym->n_type) & N_TYPE) == N_UNDF)
 		{
 			ft_printf("%16c %c %s\n",
 			' ',
-			get_letter(R(sym->n_type), R(sym->n_sect), symbol_struct->file),
+			get_letter(R(sym->n_type), R(sym->n_sect), R(sym->n_value) == 0,
+			   	symbol_struct->file),
 			symbol_struct->name);
 		}
 		/*else if (R(sym->n_sect) != NO_SECT)
@@ -138,7 +140,8 @@ void		print_sym_64(t_list *elem)
 				"%016lx %c %s\n",
 				R(sym->n_value),
 				//sym->n_type, //
-				get_letter(R(sym->n_type), R(sym->n_sect), symbol_struct->file),
+				get_letter(R(sym->n_type), R(sym->n_sect), R(sym->n_value) == 0,
+				   	symbol_struct->file),
 				symbol_struct->name);
 		}
 	}
