@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 16:56:15 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/05/24 18:24:16 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/14 10:34:45 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,16 @@ typedef struct	s_ar_file
 	void		*addr;
 	size_t		size;
 }				t_ar_file;
+
+/*
+** A structure to sort the entries
+*/
+typedef struct	s_symbol
+{
+	void		*data;
+	char		*name;
+	t_file_map	file;
+}				t_symbol;
 
 /*
 ** map.c
@@ -72,5 +82,11 @@ void			parse_symtab_32(struct nlist *tab, int n_sym, char *str_tab,
 	t_file_map	file);
 void			parse_symtab_64(struct nlist_64 *tab, int n_sym, char *str_tab,
 	t_file_map	file);
+
+/*
+** print.c
+*/
+void	print_sym(t_list *elem);
+void	print_sym_64(t_list *elem);
 
 #endif
