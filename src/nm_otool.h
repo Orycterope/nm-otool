@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 16:56:15 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/15 12:35:46 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/15 16:28:04 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,17 @@ typedef struct	s_symbol
 }				t_symbol;
 
 /*
+** A struct to describe a 32/64 section
+*/
+typedef struct	s_sect_minimal
+{
+	void		*addr;
+	uint64_t	size;
+	uint64_t	dest;
+	char		is_32;
+}				t_sect_minimal;
+
+/*
 ** map.c
 */
 t_file_map		map_filename(const char *pathname);
@@ -74,7 +85,7 @@ void			free_ar_file(void *content, size_t size);
 void			get_load_commands(t_file_map map, uint32_t cmd,
 		void	(callback)(void *, void *), void *data);
 struct section	*get_section_by_number(t_file_map map, int n);
-t_file_map		get_section_by_name(t_file_map map, const char *seg_name,
+t_sect_minimal	get_section_by_name(t_file_map map, const char *seg_name,
 		const char *sect_name);
 
 /*
@@ -88,7 +99,7 @@ void			parse_symtab_64(struct nlist_64 *tab, int n_sym, char *str_tab,
 /*
 ** print.c
 */
-void	print_sym(t_list *elem);
-void	print_sym_64(t_list *elem);
+void			print_sym(t_list *elem);
+void			print_sym_64(t_list *elem);
 
 #endif

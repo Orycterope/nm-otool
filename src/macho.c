@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/19 17:24:10 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/14 14:33:50 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/15 16:25:10 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ void			get_load_commands(t_file_map map, uint32_t cmd,
 ** Gets the n-th section of the mach-o file
 ** Returns NULL if there is no such section.
 */
+
 struct section	*get_section_by_number(t_file_map map, int n)
 {
 	uint32_t				ncmds;
@@ -99,7 +100,7 @@ struct section	*get_section_by_number(t_file_map map, int n)
 				return ((void *)(lc + 1) + (n - 1) * sizeof(struct section));
 			else if (s >= n)
 				return ((void *)(lc) + sizeof(struct segment_command_64)
-						+ (n - 1) * sizeof(struct section_64));
+					+ (n - 1) * sizeof(struct section_64));
 			n -= s;
 		}
 		map.size -= lc->cmdsize;
@@ -108,39 +109,47 @@ struct section	*get_section_by_number(t_file_map map, int n)
 	return (NULL);
 }
 
-t_file_map		get_section_in_segment(struct segment_command *lc,
+t_sect_minimal	get_section_in_segment(struct segment_command *lc,
 	const char *sect_name, t_file_map file)
 {
 	struct section				*s;
 	int							n;
 	int							is_32;
+	t_sect_minimal				ret;
 
 	is_32 = R(lc->cmd) == LC_SEGMENT ? 1 : 0;
 	n = is_32 ? R(lc->nsects) : R(((struct segment_command_64*)lc)->nsects);
 	s = is_32 ? lc + 1 : ((void *)lc) + sizeof(struct segment_command_64);
-	while (n--)
+	while (n-- && file.size > sizeof(struct section))
 	{
 		if (ft_strncmp(sect_name, s->sectname, 16) == 0)
 		{
-			file.addr += is_32 ? s->offset : ((struct section_64 *)s)->offset;
-			file.size = is_32 ? s->size : ((struct section_64 *)s)->size;
-			return (file);
+			ret.is_32 = is_32;
+			ret.size = is_32 ? s->size : ((struct section_64 *)s)->size;
+			ret.dest = is_32 ? s->addr : ((struct section_64 *)s)->addr;
+			ret.addr = file.addr +
+				(is_32 ? s->offset : ((struct section_64 *)s)->offset);
+			return (ret);
 		}
+		s = is_32 ? s + 1 : ((void *)s) + sizeof(struct section_64);
+		file.size -= is_32 ? sizeof(struct section) : sizeof(struct section_64);
 	}
-	ft_bzero(&file, sizeof(file));
-	return (file);
+	ft_bzero(&ret, sizeof(ret));
+	return (ret);
 }
 
 /*
 ** Gets the section -sect_name- in -seg_name-
-** If nothing is found returns a t_file_map pointing to NULL
+** If nothing is found returns a t_sect_minimal pointing to NULL
 */
-t_file_map		get_section_by_name(t_file_map map, const char *seg_name,
+
+t_sect_minimal	get_section_by_name(t_file_map map, const char *seg_name,
 	const char *sect_name)
 {
 	uint32_t				ncmds;
 	struct segment_command	*lc;
 	t_file_map				orig_map;
+	t_sect_minimal			ret;
 
 	orig_map = map;
 	ncmds = parse_header(&map);
@@ -149,12 +158,13 @@ t_file_map		get_section_by_name(t_file_map map, const char *seg_name,
 		lc = (struct segment_command *)map.addr;
 		if (R(lc->cmd) == LC_SEGMENT || R(lc->cmd) == LC_SEGMENT_64)
 		{
-			if (ft_strncmp(seg_name, lc->segname, 16) == 0)
+			if (ft_strncmp(seg_name, lc->segname, 16) == 0
+					|| *lc->segname == '\0')
 				return (get_section_in_segment(lc, sect_name, orig_map));
 		}
 		map.size -= lc->cmdsize;
 		map.addr += lc->cmdsize;
 	}
-	ft_bzero(&map, sizeof(map));
-	return (map);
+	ft_bzero(&ret, sizeof(ret));
+	return (ret);
 }

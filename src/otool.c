@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   nm.c                                               :+:      :+:    :+:   */
+/*   otool.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/09/15 14:00:45 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/15 14:00:47 by tvermeil         ###   ########.fr       */
+/*   Created: 2017/09/15 13:32:54 by tvermeil          #+#    #+#             */
+/*   Updated: 2017/09/15 16:26:54 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,27 +16,48 @@
 
 int		g_wrong_endian = 0;
 
-static void	symtab_command_callback(void *command_addr, void *data)
+static void	hexdump_mapping(t_sect_minimal sect)
 {
-	struct symtab_command	*command;
-	t_file_map				*mapping;
+	int		c;
 
-	command = (struct symtab_command *)command_addr;
-	mapping = (t_file_map *)data;
-	if ((size_t)R(command->stroff) + R(command->strsize) > mapping->size)
+	while (sect.size > 0)
 	{
-		ft_putendl_fd("This file seems to have been truncated", 2);
-		return ;
+		c = -1;
+		if (sect.is_32)
+			ft_printf("%08x\t", sect.dest);
+		else
+			ft_printf("%016lx\t", sect.dest);
+		while (++c < 16 && sect.size > 0)
+		{
+			ft_printf("%02x ", *((unsigned char *)sect.addr));
+			sect.addr++;
+			sect.dest++;
+			sect.size--;
+		}
+		ft_printf("\n");
 	}
-	if (R(((struct mach_header *)mapping->addr)->magic) == MH_MAGIC_64)
-		parse_symtab_64(mapping->addr + R(command->symoff), R(command->nsyms),
-				mapping->addr + R(command->stroff), *mapping);
-	else
-		parse_symtab_32(mapping->addr + R(command->symoff), R(command->nsyms),
-				mapping->addr + R(command->stroff), *mapping);
 }
 
-static void ar_iter_callback(t_list *elem)
+static void	print_section(t_file_map mapping)
+{
+	t_sect_minimal	sect;
+
+	sect = get_section_by_name(mapping, SEG_TEXT, SECT_TEXT);
+	if (sect.addr == NULL)
+	{
+		ft_printf("No section " SECT_TEXT " found.\n");
+		return ;
+	}
+	else if (sect.addr > mapping.addr + mapping.size)
+	{
+		ft_printf("The file seems to have been truncated.\n");
+		return ;
+	}
+	ft_printf("Contents of (%s,%s) section\n", SEG_TEXT, SECT_TEXT);
+	hexdump_mapping(sect);
+}
+
+static void	ar_iter_callback(t_list *elem)
 {
 	t_ar_file		*file;
 	t_file_map		mapping;
@@ -50,12 +71,10 @@ static void ar_iter_callback(t_list *elem)
 		|| magic == MH_MAGIC_64 || magic == MH_CIGAM_64))
 		return ;
 	ft_printf("%s(%s):\n", file->archive_name, file->filename);
-	get_load_commands(mapping, LC_SYMTAB, symtab_command_callback, &mapping);
-	if (elem->next != NULL)
-		ft_putchar('\n');
+	print_section(mapping);
 }
 
-static int	nm_file(char *filename, int multiple_args)
+static int	otool_file(char *filename)
 {
 	t_file_map	mapping;
 	t_file_map	real_mapping;
@@ -68,16 +87,15 @@ static int	nm_file(char *filename, int multiple_args)
 		return (EXIT_FAILURE);
 	if (check_is_ar_file(mapping.addr))
 	{
+		ft_printf("Archive : %s\n", filename);
 		ar_file_lst = create_ar_lst(mapping, filename);
 		ft_lstiter(ar_file_lst, ar_iter_callback);
 		ft_lstdel(&ar_file_lst, free_ar_file);
 	}
 	else
 	{
-		if (multiple_args)
-			ft_printf("%s:\n", filename);
-		get_load_commands(mapping, LC_SYMTAB, symtab_command_callback,
-				&mapping);
+		ft_printf("%s:\n", filename);
+		print_section(mapping);
 	}
 	unmap_mapping(real_mapping);
 	return (EXIT_SUCCESS);
@@ -85,20 +103,16 @@ static int	nm_file(char *filename, int multiple_args)
 
 int			main(int ac, char *av[])
 {
-	int	multiple_args;
-
-	multiple_args = ac > 2;
 	if (ac < 2)
 	{
 		ERROR("An argument is needed");
 		return (EXIT_FAILURE);
 	}
-	if (multiple_args)
-		ft_putchar('\n');
-	while (ac-- - 1) {
-		nm_file((av++ + 1)[0], multiple_args);
-		if (ac != 1)
-			ft_putchar('\n');
+	while (ac-- - 1)
+	{
+		otool_file((av++ + 1)[0]);
+		//if (ac != 1)
+		//	ft_putchar('\n');
 	}
 	return (EXIT_SUCCESS);
 }
