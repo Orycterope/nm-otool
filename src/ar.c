@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/18 15:17:58 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/14 14:26:32 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/15 13:22:20 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,4 +119,5 @@ void				free_ar_file(void *content, size_t size)
 	(void)size;
 	f = (t_ar_file *)content;
 	free(f->filename);
+	free(content);
 }
