@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 16:56:15 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/14 13:16:47 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/15 12:35:46 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ typedef struct	s_symbol
 ** map.c
 */
 t_file_map		map_filename(const char *pathname);
+int				unmap_mapping(t_file_map map);
 
 /*
 ** fat.c

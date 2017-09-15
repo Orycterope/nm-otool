@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 19:10:00 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/14 15:42:16 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/15 12:35:12 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,10 +58,12 @@ static void ar_iter_callback(t_list *elem)
 static int	nm_file(char *filename, int multiple_args)
 {
 	t_file_map	mapping;
+	t_file_map	real_mapping;
 	t_list		*ar_file_lst;
 
 	if ((mapping = map_filename(filename)).addr == NULL)
 		return (EXIT_FAILURE);
+	real_mapping = mapping;
 	if ((mapping = get_fat_entry(mapping)).addr == NULL)
 		return (EXIT_FAILURE);
 	if (check_is_ar_file(mapping.addr))
@@ -77,7 +79,7 @@ static int	nm_file(char *filename, int multiple_args)
 		get_load_commands(mapping, LC_SYMTAB, symtab_command_callback,
 				&mapping);
 	}
-	//TODO unmap
+	unmap_mapping(real_mapping);
 	return (EXIT_SUCCESS);
 }
 

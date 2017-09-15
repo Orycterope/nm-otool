@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 16:55:15 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/14 14:37:50 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/15 12:35:03 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,4 +54,9 @@ t_file_map	map_filename(const char *pathname)
 	close(fd);
 	mapping.size = my_stat.st_size;
 	return (mapping);
+}
+
+int			unmap_mapping(t_file_map map)
+{
+	return (munmap(map.addr, map.size));
 }
