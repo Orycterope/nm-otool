@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 16:55:15 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/15 12:35:03 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/18 16:18:18 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,18 +36,18 @@ t_file_map	map_filename(const char *pathname)
 	ft_bzero(&mapping, sizeof(t_file_map));
 	if ((fd = open(pathname, O_RDONLY)) < 0)
 	{
-		ft_printf("%s: %s\n", pathname, "The file does not exist or cannot be opened");
+		ft_printf_fd(2, "%s: %s\n", pathname, "The file does not exist or cannot be opened");
 		return (mapping);
 	}
 	if (fstat(fd, &my_stat) != 0)
 	{
-		ft_printf("%s: %s\n", pathname, "The file cannot be stat'd");
+		ft_printf_fd(2, "%s: %s\n", pathname, "The file cannot be stat'd");
 		return (mapping);
 	}
 	mapping.addr = mmap(NULL, my_stat.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	if (mapping.addr == MAP_FAILED)
 	{
-		ft_printf("%s: %s\n", pathname, "The file cannot be mmap'd");
+		ft_printf_fd(2, "%s: %s\n", pathname, "The file cannot be mmap'd");
 		mapping.addr = NULL;
 		return (mapping);
 	}
