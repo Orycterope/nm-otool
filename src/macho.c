@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/19 17:24:10 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/18 15:53:08 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/18 18:36:43 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,8 @@ struct section	*get_section_by_number(t_file_map map, int n)
 			else if (s >= n)
 				return ((void *)(lc) + sizeof(struct segment_command_64)
 					+ (n - 1) * sizeof(struct section_64));
-			n -= s;
+			else
+				n -= s;
 		}
 		map.size -= (size_t)R(lc->cmdsize) < map.size ?
 			R(lc->cmdsize) : map.size;

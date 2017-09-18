@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/15 13:32:54 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/15 16:26:54 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/18 18:25:12 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,10 +109,6 @@ int			main(int ac, char *av[])
 		return (EXIT_FAILURE);
 	}
 	while (ac-- - 1)
-	{
 		otool_file((av++ + 1)[0]);
-		//if (ac != 1)
-		//	ft_putchar('\n');
-	}
 	return (EXIT_SUCCESS);
 }

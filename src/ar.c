@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/18 15:17:58 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/15 13:22:20 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/18 18:26:34 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,8 +99,8 @@ t_list				*create_ar_lst(t_file_map archive, char *archive_name)
 		extract_name(&file);
 		file.archive_name = archive_name;
 		elem = ft_lstnew(&file, sizeof(file));
-		if (elem == NULL) //
-			break ; //
+		if (elem == NULL)
+			break ;
 		ft_lstappend(&file_lst, elem);
 		archive.addr += AR_FILE_CONTENT_OFFSET + this_file_size;
 		archive.size -= AR_FILE_CONTENT_OFFSET + this_file_size;
