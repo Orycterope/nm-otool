@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/19 17:24:10 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/15 16:25:10 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/18 15:53:08 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ struct section	*get_section_by_number(t_file_map map, int n)
 	int						s;
 
 	ncmds = parse_header(&map);
-	while (ncmds-- && n > 0)
+	while (ncmds-- && n > 0 && map.size >= sizeof(struct segment_command_64))
 	{
 		lc = (struct segment_command *)map.addr;
 		if ((R(lc->cmd) == LC_SEGMENT && (s = R(lc->nsects)))
@@ -103,8 +103,9 @@ struct section	*get_section_by_number(t_file_map map, int n)
 					+ (n - 1) * sizeof(struct section_64));
 			n -= s;
 		}
-		map.size -= lc->cmdsize;
-		map.addr += lc->cmdsize;
+		map.size -= (size_t)R(lc->cmdsize) < map.size ?
+			R(lc->cmdsize) : map.size;
+		map.addr += R(lc->cmdsize);
 	}
 	return (NULL);
 }
@@ -153,7 +154,7 @@ t_sect_minimal	get_section_by_name(t_file_map map, const char *seg_name,
 
 	orig_map = map;
 	ncmds = parse_header(&map);
-	while (ncmds--)
+	while (ncmds-- && map.size >= sizeof(struct segment_command))
 	{
 		lc = (struct segment_command *)map.addr;
 		if (R(lc->cmd) == LC_SEGMENT || R(lc->cmd) == LC_SEGMENT_64)
@@ -162,8 +163,9 @@ t_sect_minimal	get_section_by_name(t_file_map map, const char *seg_name,
 					|| *lc->segname == '\0')
 				return (get_section_in_segment(lc, sect_name, orig_map));
 		}
-		map.size -= lc->cmdsize;
-		map.addr += lc->cmdsize;
+		map.size -= (size_t)R(lc->cmdsize) < map.size ?
+			R(lc->cmdsize) : map.size;
+		map.addr += R(lc->cmdsize);
 	}
 	ft_bzero(&ret, sizeof(ret));
 	return (ret);

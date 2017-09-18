@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 17:39:04 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/05/18 20:13:59 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/18 13:33:10 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,11 @@ static t_file_map	parse_fat_32(t_file_map mapping, void *ptr, uint32_t n)
 	struct fat_arch	*a;
 
 	a = (struct fat_arch *)ptr;
-	while (n--) // check dépasse pas file_size
+	while (n--) // TODO check ptr + sizeof(*ptr) < mapping.addr + mapping.size
 	{
 		if (a->offset)
 		{
-			mapping.size = R(a->size);
+			mapping.size = R(a->size); // TODO check taille + address sont valides
 			mapping.addr += R(a->offset);
 			return (mapping);
 		}

@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/15 14:00:45 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/15 14:00:47 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/18 14:17:47 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,11 @@ static void	symtab_command_callback(void *command_addr, void *data)
 		return ;
 	}
 	if (R(((struct mach_header *)mapping->addr)->magic) == MH_MAGIC_64)
+		//TODO check command->symoff + command->nsyms * size_64 > mapping->size
 		parse_symtab_64(mapping->addr + R(command->symoff), R(command->nsyms),
 				mapping->addr + R(command->stroff), *mapping);
 	else
+		//TODO check command->symoff + command->nsyms * size_32 > mapping->size
 		parse_symtab_32(mapping->addr + R(command->symoff), R(command->nsyms),
 				mapping->addr + R(command->stroff), *mapping);
 }
