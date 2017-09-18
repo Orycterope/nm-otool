@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/15 14:00:45 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/18 14:17:47 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/18 17:52:15 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,25 +20,28 @@ static void	symtab_command_callback(void *command_addr, void *data)
 {
 	struct symtab_command	*command;
 	t_file_map				*mapping;
+	int						is_64;
 
 	command = (struct symtab_command *)command_addr;
 	mapping = (t_file_map *)data;
-	if ((size_t)R(command->stroff) + R(command->strsize) > mapping->size)
+	is_64 = R(((struct mach_header *)mapping->addr)->magic) == MH_MAGIC_64;
+	if ((size_t)R(command->stroff) + R(command->strsize) > mapping->size
+		|| (size_t)R(command->symoff) + R(command->nsyms)
+		* (is_64 ? sizeof(struct nlist_64) : sizeof(struct nlist))
+		> mapping->size)
 	{
 		ft_putendl_fd("This file seems to have been truncated", 2);
 		return ;
 	}
-	if (R(((struct mach_header *)mapping->addr)->magic) == MH_MAGIC_64)
-		//TODO check command->symoff + command->nsyms * size_64 > mapping->size
+	if (is_64)
 		parse_symtab_64(mapping->addr + R(command->symoff), R(command->nsyms),
 				mapping->addr + R(command->stroff), *mapping);
 	else
-		//TODO check command->symoff + command->nsyms * size_32 > mapping->size
 		parse_symtab_32(mapping->addr + R(command->symoff), R(command->nsyms),
 				mapping->addr + R(command->stroff), *mapping);
 }
 
-static void ar_iter_callback(t_list *elem)
+static void	ar_iter_callback(t_list *elem)
 {
 	t_ar_file		*file;
 	t_file_map		mapping;
@@ -97,7 +100,8 @@ int			main(int ac, char *av[])
 	}
 	if (multiple_args)
 		ft_putchar('\n');
-	while (ac-- - 1) {
+	while (ac-- - 1)
+	{
 		nm_file((av++ + 1)[0], multiple_args);
 		if (ac != 1)
 			ft_putchar('\n');

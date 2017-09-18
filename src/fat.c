@@ -6,7 +6,7 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 17:39:04 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/18 13:33:10 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/18 17:17:32 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,13 @@ static t_file_map	parse_fat_32(t_file_map mapping, void *ptr, uint32_t n)
 	struct fat_arch	*a;
 
 	a = (struct fat_arch *)ptr;
-	while (n--) // TODO check ptr + sizeof(*ptr) < mapping.addr + mapping.size
+	while (n-- && (void *)a + sizeof(*a) < mapping.addr + mapping.size)
 	{
 		if (a->offset)
 		{
-			mapping.size = R(a->size); // TODO check taille + address sont valides
+			if ((size_t)R(a->offset) + R(a->size) > mapping.size)
+				continue ;
+			mapping.size = R(a->size);
 			mapping.addr += R(a->offset);
 			return (mapping);
 		}
@@ -48,10 +50,12 @@ static t_file_map	parse_fat_64(t_file_map mapping, void *ptr, uint32_t n)
 	struct fat_arch_64	*a;
 
 	a = (struct fat_arch_64 *)ptr;
-	while (n--)
+	while (n-- && (void *)a + sizeof(*a) < mapping.addr + mapping.size)
 	{
 		if (a->offset)
 		{
+			if ((size_t)R(a->offset) + R(a->size) > mapping.size)
+				continue ;
 			mapping.size = R(a->size);
 			mapping.addr += R(a->offset);
 			return (mapping);
