@@ -6,13 +6,14 @@
 /*   By: tvermeil <tvermeil@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/12 17:39:04 by tvermeil          #+#    #+#             */
-/*   Updated: 2017/09/18 17:17:32 by tvermeil         ###   ########.fr       */
+/*   Updated: 2017/09/19 12:19:58 by tvermeil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "nm_otool.h"
 #include "endian.h"
 #include <mach-o/fat.h>
+#include <mach/machine.h>
 
 /*
 ** This file contains the functions dealing with fat file format
@@ -27,18 +28,24 @@
 static t_file_map	parse_fat_32(t_file_map mapping, void *ptr, uint32_t n)
 {
 	struct fat_arch	*a;
+	struct fat_arch	*valid;
 
-	a = (struct fat_arch *)ptr;
-	while (n-- && (void *)a + sizeof(*a) < mapping.addr + mapping.size)
+	a = (struct fat_arch *)ptr - 1;
+	valid = NULL;
+	while (n-- && ++a && (void *)a + sizeof(*a) < mapping.addr + mapping.size)
 	{
-		if (a->offset)
-		{
-			if ((size_t)R(a->offset) + R(a->size) > mapping.size)
-				continue ;
-			mapping.size = R(a->size);
-			mapping.addr += R(a->offset);
-			return (mapping);
-		}
+		if ((size_t)R(a->offset) + R(a->size) > mapping.size)
+			continue ;
+		if (R(a->cputype) == CPU_TYPE_X86_64 && (valid = a))
+			break ;
+		else if (valid == NULL && a->offset)
+			valid = a;
+	}
+	if (valid)
+	{
+		mapping.size = R(a->size);
+		mapping.addr += R(a->offset);
+		return (mapping);
 	}
 	ERROR("The fat file contains no valid architecture");
 	ft_bzero(&mapping, sizeof(t_file_map));
@@ -48,18 +55,24 @@ static t_file_map	parse_fat_32(t_file_map mapping, void *ptr, uint32_t n)
 static t_file_map	parse_fat_64(t_file_map mapping, void *ptr, uint32_t n)
 {
 	struct fat_arch_64	*a;
+	struct fat_arch_64	*valid;
 
-	a = (struct fat_arch_64 *)ptr;
-	while (n-- && (void *)a + sizeof(*a) < mapping.addr + mapping.size)
+	a = (struct fat_arch_64 *)ptr - 1;
+	valid = NULL;
+	while (n-- && ++a && (void *)a + sizeof(*a) < mapping.addr + mapping.size)
 	{
-		if (a->offset)
-		{
-			if ((size_t)R(a->offset) + R(a->size) > mapping.size)
-				continue ;
-			mapping.size = R(a->size);
-			mapping.addr += R(a->offset);
-			return (mapping);
-		}
+		if ((size_t)R(a->offset) + R(a->size) > mapping.size)
+			continue ;
+		if (R(a->cputype) == CPU_TYPE_X86_64 && (valid = a))
+			break ;
+		else if (valid == NULL && a->offset)
+			valid = a;
+	}
+	if (valid)
+	{
+		mapping.size = R(a->size);
+		mapping.addr += R(a->offset);
+		return (mapping);
 	}
 	ERROR("The fat file contains no valid architecture");
 	ft_bzero(&mapping, sizeof(t_file_map));
